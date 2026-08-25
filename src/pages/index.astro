@@ -1,0 +1,42 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteFeed from '@/components/react/PaletteFeed';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+
+// Only the first screen is serialised into the page; the island pulls the rest
+// when the browser is idle.
+const initial = [...SEED_PALETTES]
+  .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+  .slice(0, 24);
+
+const site = Astro.site ?? Astro.url;
+const siteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Cohesive Colors',
+  alternateName: 'Cohesive Colors palette collection',
+  url: new URL('/', site).href,
+  description:
+    'A collection of colour palettes harmonised with perceptual OKLCH colour maths, with hex codes, contrast ratios and code exports.',
+  inLanguage: 'en',
+};
+---
+
+<Layout
+  title="Color palettes with hex codes"
+  description="Browse 480 colour palettes with hex codes, 3 to 10 swatches each. Every palette is harmonised in OKLCH, with contrast ratios and CSS exports."
+>
+  <section class="text-center">
+    <h1 class="text-[30px] font-semibold tracking-tight text-ink-900 sm:text-[34px]">Color Palettes</h1>
+    <p class="mx-auto mt-2 max-w-xl text-[13.5px] leading-relaxed text-ink-500">
+      Every palette here is run through one shared key colour in OKLab, three to ten swatches that
+      already belong together. Click any stripe to copy it.
+    </p>
+  </section>
+
+  <div class="mt-7">
+    <PaletteFeed client:load initial={initial} />
+  </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
+</Layout>

@@ -1,0 +1,85 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteGrid from '@/components/astro/PaletteGrid.astro';
+import HubLinks from '@/components/astro/HubLinks.astro';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+import { slug } from '@/lib/color/export';
+import { clampMeta, clampTitle, hubHref, PALETTE_SIZES } from '@/lib/seo';
+import type { Palette } from '@/lib/color/types';
+
+export function getStaticPaths() {
+  return PALETTE_SIZES.map((count) => ({
+    params: { count: String(count) },
+    props: {
+      count,
+      palettes: SEED_PALETTES.filter((p) => p.colors.length === count).sort(
+        (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+      ),
+    },
+  }));
+}
+
+interface Props {
+  count: number;
+  palettes: Palette[];
+}
+
+const { count, palettes } = Astro.props;
+const site = Astro.site ?? Astro.url;
+
+const title = clampTitle(`${count} color palettes with hex codes`, 46);
+const description = clampMeta(
+  `${palettes.length} palettes of exactly ${count} colors, with hex codes, contrast ratios and CSS, Tailwind and SCSS exports. Harmonised in OKLCH.`,
+);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Palettes', item: new URL('/palettes', site).href },
+        { '@type': 'ListItem', position: 2, name: `${count} color palettes`, item: new URL(hubHref('size', count), site).href },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      name: title,
+      description,
+      url: new URL(Astro.url.pathname, site).href,
+      isPartOf: { '@type': 'WebSite', name: 'Cohesive Colors', url: new URL('/', site).href },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: palettes.length,
+        itemListElement: palettes.slice(0, 30).map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: p.name,
+          url: new URL(`/palette/${slug(p.name)}-palette-${p.id}`, site).href,
+        })),
+      },
+    },
+  ],
+};
+---
+
+<Layout title={title} description={description}>
+  <nav aria-label="Breadcrumb" class="text-[12px] text-ink-500">
+    <a href="/" class="hover:text-ink-900">Home</a>
+    <span class="mx-1.5 text-ink-300">/</span>
+    <a href="/palettes" class="hover:text-ink-900">Palettes</a>
+    <span class="mx-1.5 text-ink-300">/</span>
+    <span class="text-ink-900">{count} colors</span>
+  </nav>
+
+  <h1 class="mt-3 text-[26px] font-semibold tracking-tight text-ink-900">{count} color palettes</h1>
+  <p class="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-ink-500">
+    Palettes of exactly {count} swatches. The count changes the character: three colours force a
+    decision, ten give you a full ramp with room for states and surfaces.
+  </p>
+
+  <PaletteGrid palettes={palettes} />
+  <HubLinks title="Other collections" exclude={hubHref('size', count)} />
+
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+</Layout>

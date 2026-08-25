@@ -1,0 +1,43 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import GeneratorStudio from '@/components/react/GeneratorStudio';
+
+const site = Astro.site ?? Astro.url;
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Cohesive colour palette generator',
+  url: new URL('/generator', site).href,
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'Any browser',
+  browserRequirements: 'Requires JavaScript',
+  description:
+    'Pin the colours you want to keep, press space, and the rest of the palette is rebuilt around them through a single shared key colour.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  featureList: [
+    'Lock individual swatches and regenerate the rest',
+    'Palettes from 3 to 10 colours',
+    'Live key colour and overlay strength',
+    'WCAG 2.1 contrast matrix',
+    'Export to CSS, Tailwind, SCSS, JSON, Swift and Android XML',
+  ],
+  inLanguage: 'en',
+};
+---
+
+<Layout
+  title="Color palette generator"
+  description="Pin the colours you like, press space, and the generator rebuilds the rest around them through one shared key colour. Export to CSS, Tailwind or SCSS."
+>
+  <section class="mb-6">
+    <h1 class="text-[26px] font-semibold tracking-tight text-ink-900">Cohesive generator</h1>
+    <p class="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-ink-500">
+      Pin one or two swatches, press <kbd class="rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px]">space</kbd>,
+      and everything unpinned is rebuilt around them, same harmony, same key colour, same contrast ladder.
+    </p>
+  </section>
+
+  <GeneratorStudio client:load />
+
+  <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
+</Layout>

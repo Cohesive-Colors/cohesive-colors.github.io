@@ -1,0 +1,35 @@
+---
+import { paletteHref } from '@/lib/palette-url';
+import { shortAge } from '@/lib/time';
+import type { Palette } from '@/lib/color/types';
+
+interface Props {
+  palettes: Palette[];
+}
+
+const { palettes } = Astro.props;
+---
+
+{/*
+  Deliberately static: no island, no hydration. These grids exist so every
+  palette has a crawlable anchor pointing at it, and an <a> in the served HTML
+  does that better than anything JavaScript can add.
+*/}
+<ul class="feed-grid mt-6">
+  {palettes.map((palette) => (
+    <li class="overflow-hidden rounded-card border border-line bg-surface transition-shadow hover:shadow-[0_10px_30px_-12px_rgba(20,22,28,0.28)]">
+      <a href={paletteHref(palette)} class="block">
+        <span class="flex h-[128px] w-full">
+          {palette.colors.map((hex) => (
+            <span class="flex-1" style={`background:${hex}`} aria-hidden="true"></span>
+          ))}
+        </span>
+        <span class="flex h-11 items-center gap-2 px-3">
+          <span class="truncate text-[12.5px] font-medium text-ink-900">{palette.name}</span>
+          <span class="shrink-0 text-[10.5px] text-ink-300">{palette.colors.length} colors</span>
+          <span class="ml-auto shrink-0 text-[10.5px] text-ink-300">{shortAge(palette.createdAt)}</span>
+        </span>
+      </a>
+    </li>
+  ))}
+</ul>

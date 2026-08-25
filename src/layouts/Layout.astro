@@ -1,0 +1,91 @@
+---
+import '@/styles/global.css';
+import { withBrand } from '@/lib/seo';
+import Nav from '@/components/astro/Nav.astro';
+import Footer from '@/components/astro/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Per-page social image; falls back to the site card. */
+  image?: string;
+  imageAlt?: string;
+  /** "article" turns a page into a Pinterest Rich Pin. */
+  type?: 'website' | 'article';
+  publishedAt?: string;
+  /** Keeps thin or parameter-driven pages out of the index. */
+  noindex?: boolean;
+  /** Suffix the site name, unless the page title already reads as a brand line. */
+  bareTitle?: boolean;
+}
+
+const {
+  title,
+  description,
+  image,
+  imageAlt,
+  type = 'website',
+  publishedAt,
+  noindex = false,
+  bareTitle = false,
+} = Astro.props;
+
+const fullTitle = bareTitle ? title : withBrand(title);
+// Astro.site comes from PUBLIC_SITE_URL; Astro.url is the fallback in dev.
+const ogImage = new URL(image ?? '/og-image.png', Astro.site ?? Astro.url).href;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+
+// Chrome keeps favicons in a cache of its own that a hard reload does not
+// clear. Bump this when the mark changes and the tab icon updates immediately.
+const ICON_VERSION = 2;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href={`/favicon.ico?v=${ICON_VERSION}`} sizes="48x48" />
+    <link rel="icon" href={`/favicon.svg?v=${ICON_VERSION}`} type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href={`/apple-touch-icon.png?v=${ICON_VERSION}`} />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Cohesive Colors" />
+    {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+    {publishedAt && <meta property="article:published_time" content={publishedAt} />}
+    {type === 'article' && <meta property="article:author" content="Cohesive Colors" />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="theme-color" content="#f7f7f8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[200] focus:rounded-full focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-[13px] focus:text-white"
+    >
+      Skip to content
+    </a>
+    <Nav />
+    <main id="main" class="mx-auto max-w-[1400px] px-4 pb-8 pt-10 sm:px-6">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

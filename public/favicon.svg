@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cohesive Colors">
+  <title>Cohesive Colors</title>
+  <defs>
+    <clipPath id="tile"><rect width="512" height="512" rx="94" ry="94"/></clipPath>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".10"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#tile)">
+    <!-- Four source swatches -->
+    <rect x="0"   y="0" width="128" height="512" fill="#d99140"/>
+    <rect x="128" y="0" width="128" height="512" fill="#c4472e"/>
+    <rect x="256" y="0" width="128" height="512" fill="#6d8065"/>
+    <rect x="384" y="0" width="128" height="512" fill="#8b5c79"/>
+    <!-- Lower half: the same swatches after the cohesion pass -->
+    <rect x="0"   y="277" width="128" height="235" fill="#b45c15"/>
+    <rect x="128" y="277" width="128" height="235" fill="#9b2d1f"/>
+    <rect x="256" y="277" width="128" height="235" fill="#2b4b50"/>
+    <rect x="384" y="277" width="128" height="235" fill="#614c75"/>
+    <!-- The key-colour overlay band itself -->
+    <rect x="0"   y="228" width="128" height="49" fill="#e0780e"/>
+    <rect x="128" y="228" width="128" height="49" fill="#a53929"/>
+    <rect x="256" y="228" width="128" height="49" fill="#506a6a"/>
+    <rect x="384" y="228" width="128" height="49" fill="#624c75"/>
+    <rect width="512" height="512" fill="url(#sheen)"/>
+  </g>
+</svg>

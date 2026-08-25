@@ -1,0 +1,36 @@
+---
+import { HUB_LINKS } from '@/lib/seo';
+
+interface Props {
+  title?: string;
+  exclude?: string;
+}
+
+const { title = 'Browse by', exclude } = Astro.props;
+const groups = [
+  { label: 'Hue', links: HUB_LINKS.filter((l) => l.kind === 'hue') },
+  { label: 'Mood', links: HUB_LINKS.filter((l) => l.kind === 'mood') },
+  { label: 'Size', links: HUB_LINKS.filter((l) => l.kind === 'size') },
+];
+---
+
+<section class="mt-14 border-t border-line pt-8">
+  <h2 class="text-[14px] font-semibold text-ink-900">{title}</h2>
+  <div class="mt-4 space-y-3">
+    {groups.map((group) => (
+      <div class="flex flex-wrap items-baseline gap-2">
+        <span class="w-12 shrink-0 text-[11px] uppercase tracking-wide text-ink-300">{group.label}</span>
+        {group.links
+          .filter((link) => link.href !== exclude)
+          .map((link) => (
+            <a
+              href={link.href}
+              class="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-ink-500 transition hover:border-ink-300 hover:text-ink-900"
+            >
+              {link.label}
+            </a>
+          ))}
+      </div>
+    ))}
+  </div>
+</section>

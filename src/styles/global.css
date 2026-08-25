@@ -1,0 +1,104 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter var', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-ink-900: oklch(0.19 0.012 265);
+  --color-ink-700: oklch(0.38 0.012 265);
+  --color-ink-500: oklch(0.56 0.012 265);
+  --color-ink-300: oklch(0.78 0.008 265);
+  --color-line: oklch(0.92 0.004 265);
+  --color-canvas: oklch(0.985 0.002 265);
+  --color-surface: oklch(1 0 0);
+  --color-accent: oklch(0.62 0.19 27);
+
+  --radius-card: 14px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+}
+
+/*
+ * Tailwind v4's preflight resets buttons to `cursor: default`, so every
+ * control has to opt back in. Doing it here rather than per-component is what
+ * keeps it consistent — one missing utility class is otherwise invisible until
+ * someone hovers it.
+ */
+@layer base {
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='switch'],
+  summary,
+  label:has(input[type='color']),
+  select,
+  input[type='range'],
+  input[type='color'],
+  input[type='checkbox'],
+  input[type='radio'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'],
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  input[type='search'],
+  input[type='text'] {
+    cursor: text;
+  }
+}
+
+/* Feed grid: fixed row height => zero layout shift while palettes stream in. */
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .feed-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1280px) {
+  .feed-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
+}
+
+.swatch-strip {
+  transition: flex-grow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: flex-grow;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swatch-strip,
+  * {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
+
+.scrollbar-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-ink-300); border-radius: 999px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+dialog::backdrop {
+  background: oklch(0.19 0.012 265 / 0.55);
+  backdrop-filter: blur(6px);
+}

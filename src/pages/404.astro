@@ -1,0 +1,38 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteGrid from '@/components/astro/PaletteGrid.astro';
+import HubLinks from '@/components/astro/HubLinks.astro';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+
+// A dead end is a good place to offer something concrete, so the page carries
+// real palettes rather than an apology and a back button.
+const suggestions = [...SEED_PALETTES]
+  .sort((a, b) => b.likes - a.likes)
+  .slice(0, 8);
+---
+
+<Layout
+  title="Page not found"
+  description="That page does not exist. Browse 480 colour palettes with hex codes, contrast ratios and code exports instead."
+  noindex
+>
+  <section class="py-6 text-center">
+    <p class="font-mono text-[12px] uppercase tracking-widest text-ink-300">Error 404</p>
+    <h1 class="mt-3 text-[28px] font-semibold tracking-tight text-ink-900">This page does not exist</h1>
+    <p class="mx-auto mt-3 max-w-lg text-[13.5px] leading-relaxed text-ink-500">
+      The link may be out of date, or the palette may have been a generated one that was never
+      published. Here are the most liked palettes to start from instead.
+    </p>
+    <div class="mt-6 flex flex-wrap justify-center gap-2">
+      <a href="/palettes" class="rounded-full bg-ink-900 px-4 py-2 text-[13px] font-medium text-white transition hover:opacity-90">
+        Browse all palettes
+      </a>
+      <a href="/generator" class="rounded-full border border-line px-4 py-2 text-[13px] font-medium text-ink-700 transition hover:border-ink-300 hover:text-ink-900">
+        Open the generator
+      </a>
+    </div>
+  </section>
+
+  <PaletteGrid palettes={suggestions} />
+  <HubLinks />
+</Layout>

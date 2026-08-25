@@ -1,0 +1,140 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { generatePalette } from '@/lib/color/palette';
+import { EXPORT_FORMATS } from '@/lib/color/export';
+
+// Rendered at build time so the explainer ships as plain HTML.
+const demo = [12345, 90210, 4242].map((seed) => generatePalette({ seed, size: 6 }));
+
+const steps = [
+  {
+    title: '1 · Base generation',
+    body:
+      'A harmony is picked, analogous, complementary, split-complementary, triadic, tetradic or a free random set, and swatches are laid out along an eased lightness ramp with a chroma arc that peaks in the middle.',
+  },
+  {
+    title: '2 · Cohesion layer',
+    body:
+      'One key colour is composited over every swatch in linear sRGB, exactly the way an image editor blends an overlay layer, at 10, 35% strength. Each swatch is then pulled back toward its original OKLab lightness, and its hue is nudged toward the key hue in OKLCH. Channel blends cannot move a clipped primary, so that hue pull is what guarantees a shared axis.',
+  },
+  {
+    title: '3 · Contrast & vibrancy guards',
+    body:
+      'A heavy overlay drains both separation and chroma. The contrast guard sorts by lightness and pushes neighbours apart until every pair clears a minimum gap; the vibrancy guard scales mean chroma back up toward a target, clamped to what sRGB can actually display at that lightness.',
+  },
+];
+
+const site = Astro.site ?? Astro.url;
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'How cohesive colour palettes are built',
+  description:
+    'The colour maths behind Cohesive Colors: an overlay composited in linear sRGB, lightness restored in OKLab, and contrast and vibrancy guards that repair the result.',
+  url: new URL('/about', site).href,
+  inLanguage: 'en',
+  author: { '@type': 'Organization', name: 'Cohesive Colors', url: new URL('/', site).href },
+  publisher: { '@type': 'Organization', name: 'Cohesive Colors', url: new URL('/', site).href },
+  about: [
+    { '@type': 'Thing', name: 'OKLCH colour space' },
+    { '@type': 'Thing', name: 'Colour harmony' },
+    { '@type': 'Thing', name: 'WCAG contrast' },
+  ],
+  articleSection: 'Colour theory',
+};
+---
+
+<Layout
+  title="How cohesive palettes are built"
+  description="The colour maths behind the site: an overlay blended in linear sRGB, lightness restored in OKLab, then contrast and vibrancy guards that repair the set."
+>
+  <article class="mx-auto max-w-3xl">
+    <h1 class="text-[28px] font-semibold tracking-tight text-ink-900">How cohesion works</h1>
+    <p class="mt-3 text-[14px] leading-relaxed text-ink-700">
+      Randomly sampled hex codes clash because nothing ties them together. A cohesive palette starts the
+      same way, then puts every swatch under one shared light source, and repairs the contrast that the
+      overlay costs.
+    </p>
+
+    <section class="mt-8 space-y-4">
+      {steps.map((step) => (
+        <div class="rounded-xl border border-line bg-surface p-4">
+          <h2 class="text-[13.5px] font-semibold text-ink-900">{step.title}</h2>
+          <p class="mt-1.5 text-[13px] leading-relaxed text-ink-500">{step.body}</p>
+        </div>
+      ))}
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-[16px] font-semibold text-ink-900">Before and after</h2>
+      <p class="mt-1.5 text-[13px] text-ink-500">
+        The same three palettes, raw on top and cohered underneath. Same swatch count, same lightness
+        ladder, one shared atmosphere.
+      </p>
+
+      <div class="mt-4 space-y-5">
+        {demo.map((p) => (
+          <div>
+            <div class="flex items-baseline justify-between">
+              <h3 class="text-[13px] font-medium text-ink-900">{p.name}</h3>
+              <span class="text-[11px] text-ink-300">
+                key {p.cohesion.tint} · {Math.round(p.cohesion.alpha * 100)}% · {p.cohesion.blend}
+              </span>
+            </div>
+            <div class="mt-2 overflow-hidden rounded-lg border border-line">
+              <div class="flex h-12">
+                {p.raw.map((hex) => <span class="flex-1" style={`background:${hex}`} />)}
+              </div>
+              <div class="flex h-12 border-t border-white/40">
+                {p.colors.map((hex) => <span class="flex-1" style={`background:${hex}`} />)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="contrast" class="mt-10 scroll-mt-20">
+      <h2 class="text-[16px] font-semibold text-ink-900">Contrast checking</h2>
+      <p class="mt-1.5 text-[13px] leading-relaxed text-ink-500">
+        Open any palette and the editor shows a full WCAG 2.1 matrix: every swatch against every other,
+        plus black-and-white text safety per swatch. 4.5:1 passes AA for body text, 3:1 for large text,
+        7:1 for AAA.
+      </p>
+    </section>
+
+    <section id="exports" class="mt-10 scroll-mt-20">
+      <h2 class="text-[16px] font-semibold text-ink-900">Export formats</h2>
+      <ul class="mt-3 flex flex-wrap gap-1.5">
+        {EXPORT_FORMATS.map((f) => (
+          <li class="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-ink-700">{f.label}</li>
+        ))}
+        <li class="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-ink-700">PNG card</li>
+      </ul>
+      <p class="mt-3 text-[13px] leading-relaxed text-ink-500">
+        Swatches are named by hue family, so the CSS and Tailwind exports come out readable
+        (<code class="font-mono text-[12px]">--color-teal-1</code>) rather than numbered only.
+      </p>
+    </section>
+
+    <section class="mt-10 rounded-xl border border-line bg-surface p-5">
+      <h2 class="text-[14px] font-semibold text-ink-900">Keyboard</h2>
+      <dl class="mt-3 space-y-2 text-[13px]">
+        <div class="flex gap-3">
+          <dt class="w-24 shrink-0"><kbd class="rounded border border-line px-1.5 py-0.5 font-mono text-[11px]">Space</kbd></dt>
+          <dd class="text-ink-500">Regenerate every unpinned swatch in the generator</dd>
+        </div>
+        <div class="flex gap-3">
+          <dt class="w-24 shrink-0"><kbd class="rounded border border-line px-1.5 py-0.5 font-mono text-[11px]">Esc</kbd></dt>
+          <dd class="text-ink-500">Close the editor or the cohesion panel</dd>
+        </div>
+        <div class="flex gap-3">
+          <dt class="w-24 shrink-0"><kbd class="rounded border border-line px-1.5 py-0.5 font-mono text-[11px]">Tab</kbd></dt>
+          <dd class="text-ink-500">Move between swatches, every stripe is a real button, Enter copies it</dd>
+        </div>
+      </dl>
+    </section>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
+</Layout>

@@ -1,0 +1,51 @@
+{
+  "name": "cohesive-colors",
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "npm run images:palettes && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "seed": "npm run test:build && node scripts/generate-seed.mjs",
+    "test": "npm run test:build && node --test tests/*.test.mjs",
+    "test:build": "esbuild src/lib/color/index.ts --bundle --format=esm --platform=node --tsconfig=tsconfig.json --outfile=tests/.build/engine.mjs && esbuild src/lib/feed.ts --bundle --format=esm --platform=node --tsconfig=tsconfig.json --outfile=tests/.build/feed.mjs && esbuild src/lib/palette-url.ts --bundle --format=esm --platform=node --tsconfig=tsconfig.json --outfile=tests/.build/palette-url.mjs",
+    "icons": "node scripts/generate-icons.mjs",
+    "seed:firebase": "node scripts/seed-firebase.mjs",
+    "rules:deploy": "npx --yes firebase-tools deploy --only database",
+    "emulate": "npx --yes firebase-tools emulators:start --only database,auth",
+    "check:firebase": "node scripts/check-firebase.mjs",
+    "env:from-config": "node scripts/env-from-config.mjs",
+    "images:palettes": "npm run test:build && node scripts/generate-palette-images.mjs",
+    "prune:firebase": "node scripts/prune-firebase.mjs",
+    "pins:csv": "npm run test:build && node scripts/generate-pin-csv.mjs",
+    "audit:seo": "node scripts/audit-seo.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.4.0",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.4",
+    "culori": "^4.0.1",
+    "firebase": "^12.18.0",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.3.3",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/culori": "^4.0.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "esbuild": "^0.28.2",
+    "firebase-admin": "^13.0.0",
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.3",
+    "typescript": "^6.0.3"
+  }
+}

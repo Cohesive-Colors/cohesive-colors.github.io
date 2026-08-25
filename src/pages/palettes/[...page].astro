@@ -1,0 +1,137 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteGrid from '@/components/astro/PaletteGrid.astro';
+import HubLinks from '@/components/astro/HubLinks.astro';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+import { clampMeta, clampTitle } from '@/lib/seo';
+import type { Palette } from '@/lib/color/types';
+
+export function getStaticPaths() {
+  // Declared inside: Astro hoists getStaticPaths, so it cannot close over
+  // anything else in the frontmatter.
+  const PER_PAGE = 24;
+
+  const sorted = [...SEED_PALETTES].sort(
+    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+  );
+  const total = Math.ceil(sorted.length / PER_PAGE);
+
+  return Array.from({ length: total }, (_, i) => ({
+    // Page one lives at /palettes, the rest at /palettes/2 and so on.
+    params: { page: i === 0 ? undefined : String(i + 1) },
+    props: { palettes: sorted.slice(i * PER_PAGE, (i + 1) * PER_PAGE), page: i + 1, total },
+  }));
+}
+
+interface Props {
+  palettes: Palette[];
+  page: number;
+  total: number;
+}
+
+const { palettes, page, total } = Astro.props;
+const site = Astro.site ?? Astro.url;
+
+const title = clampTitle(
+  page === 1 ? 'All color palettes with hex codes' : `Color palettes, page ${page} of ${total}`,
+  46,
+);
+
+const description = clampMeta(
+  page === 1
+    ? 'Browse 480 color palettes with hex codes, 3 to 10 swatches each, harmonised in OKLCH with contrast ratios and CSS exports.'
+    : `Page ${page} of ${total}. More color palettes with hex codes, 3 to 10 swatches, harmonised in OKLCH with contrast ratios and CSS exports.`,
+);
+
+const href = (n: number) => (n === 1 ? '/palettes' : `/palettes/${n}`);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Palettes', item: new URL('/palettes', site).href },
+        ...(page > 1
+          ? [{ '@type': 'ListItem', position: 2, name: `Page ${page}`, item: new URL(href(page), site).href }]
+          : []),
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      name: title,
+      description,
+      url: new URL(Astro.url.pathname, site).href,
+      isPartOf: { '@type': 'WebSite', name: 'Cohesive Colors', url: new URL('/', site).href },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: palettes.length,
+        itemListElement: palettes.map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: p.name,
+          url: new URL(`/palette/${p.slug}`, site).href,
+        })),
+      },
+    },
+  ],
+};
+const window = Array.from({ length: total }, (_, i) => i + 1).filter(
+  (n) => n === 1 || n === total || Math.abs(n - page) <= 2,
+);
+---
+
+<Layout title={title} description={description}>
+  {page > 1 && <link rel="prev" href={new URL(href(page - 1), site).href} slot="head" />}
+
+  <nav aria-label="Breadcrumb" class="text-[12px] text-ink-500">
+    <a href="/" class="hover:text-ink-900">Home</a>
+    <span class="mx-1.5 text-ink-300">/</span>
+    {page === 1 ? <span class="text-ink-900">Palettes</span> : <a href="/palettes" class="hover:text-ink-900">Palettes</a>}
+    {page > 1 && <><span class="mx-1.5 text-ink-300">/</span><span class="text-ink-900">Page {page}</span></>}
+  </nav>
+
+  <h1 class="mt-3 text-[26px] font-semibold tracking-tight text-ink-900">
+    {page === 1 ? 'All color palettes' : `Color palettes, page ${page}`}
+  </h1>
+  <p class="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-ink-500">
+    Every palette in the collection, newest first. Each one is harmonised in OKLCH: the swatches share
+    a single key colour, and contrast is repaired afterwards so the set stays usable.
+  </p>
+
+  <PaletteGrid palettes={palettes} />
+
+  {total > 1 && (
+    <nav aria-label="Pagination" class="mt-10 flex flex-wrap items-center justify-center gap-1.5">
+      {page > 1 && (
+        <a href={href(page - 1)} rel="prev" class="rounded-full border border-line px-3 py-1.5 text-[12.5px] text-ink-700 hover:border-ink-300">
+          Previous
+        </a>
+      )}
+      {window.map((n, i) => (
+        <>
+          {i > 0 && window[i - 1] !== n - 1 && <span class="px-1 text-ink-300">...</span>}
+          <a
+            href={href(n)}
+            aria-current={n === page ? 'page' : undefined}
+            class:list={[
+              'rounded-full px-3 py-1.5 text-[12.5px] transition',
+              n === page ? 'bg-ink-900 text-white' : 'border border-line text-ink-700 hover:border-ink-300',
+            ]}
+          >
+            {n}
+          </a>
+        </>
+      ))}
+      {page < total && (
+        <a href={href(page + 1)} rel="next" class="rounded-full border border-line px-3 py-1.5 text-[12.5px] text-ink-700 hover:border-ink-300">
+          Next
+        </a>
+      )}
+    </nav>
+  )}
+
+  <HubLinks />
+
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+</Layout>

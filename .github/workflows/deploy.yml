@@ -1,0 +1,81 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+#
+# The build is not a plain `astro build`: `npm run build` first rasterises 1920
+# social images with sharp, which is why the job needs several minutes and why
+# public/social is gitignored. Nothing generated is ever committed.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets you re-publish from the Actions tab without pushing a commit.
+  workflow_dispatch:
+
+# GITHUB_TOKEN needs these to hand the artifact to the Pages service.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race. In-progress runs finish so a half-published
+# site is not left behind.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` installs exactly what package-lock.json pins, so a deploy can
+      # never pick up a different dependency tree than the one tested locally.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx astro check
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        env:
+          # Firebase web config is public by design; access is enforced by
+          # database.rules.json. It lives in repository variables rather than
+          # the source so the same code can build against another project.
+          # If these are unset the site still builds and works, just with
+          # likes kept per browser instead of shared.
+          PUBLIC_FIREBASE_API_KEY: ${{ vars.PUBLIC_FIREBASE_API_KEY }}
+          PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          PUBLIC_FIREBASE_DATABASE_URL: ${{ vars.PUBLIC_FIREBASE_DATABASE_URL }}
+          PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.PUBLIC_FIREBASE_PROJECT_ID }}
+          PUBLIC_FIREBASE_APP_ID: ${{ vars.PUBLIC_FIREBASE_APP_ID }}
+        run: npm run build
+
+      # Catches a broken canonical, a duplicate title or an orphaned page
+      # before the artifact is published rather than after.
+      - name: Audit SEO
+        run: npm run audit:seo
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,77 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "palettes": {
+      ".read": true,
+      ".indexOn": ["createdAt", "likes"],
+
+      "$id": {
+        // Anyone signed in may publish a new palette. Nobody may edit or delete
+        // one afterwards — the only mutable field is `likes`, which has its own
+        // rule below.
+        ".write": "auth != null && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'colors', 'createdAt', 'author', 'likes'])",
+
+        "author":    { ".validate": "newData.val() === auth.uid" },
+        "createdAt": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "seed":      { ".validate": "newData.isNumber()" },
+        "hue":       { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 360" },
+        "harmony":   { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "name":      { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+
+        "colors": {
+          // 3..10 swatches: index 2 must exist, index 10 must not.
+          ".validate": "newData.hasChild('2') && !newData.hasChild('10')",
+          "$i": { ".validate": "newData.isString() && newData.val().matches(/^#[0-9a-fA-F]{6}$/)" }
+        },
+        "raw": {
+          "$i": { ".validate": "newData.isString() && newData.val().matches(/^#[0-9a-fA-F]{6}$/)" }
+        },
+        "moods": {
+          "$i": { ".validate": "newData.isString() && newData.val().length <= 20" }
+        },
+        "cohesion": {
+          "tint":  { ".validate": "newData.isString() && newData.val().matches(/^#[0-9a-fA-F]{6}$/)" },
+          "alpha": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 0.5" },
+          "$other": { ".validate": "newData.isNumber() || newData.isString()" }
+        },
+
+        "likes": {
+          // Writable by any signed-in user, but only by one, and only in the
+          // direction that matches this user's own entry under /userLikes —
+          // which must be set in the SAME multi-path update. That binding is
+          // what makes a second like impossible rather than merely hidden.
+          ".write": "auth != null",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && ((!data.exists() && newData.val() === 0) || (newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('userLikes').child(auth.uid).child($id).val() === true && !root.child('userLikes').child(auth.uid).child($id).exists()) || (data.exists() && newData.val() === data.val() - 1 && !newData.parent().parent().parent().child('userLikes').child(auth.uid).child($id).exists() && root.child('userLikes').child(auth.uid).child($id).exists()))"
+        },
+
+        "$other": { ".validate": false }
+      }
+    },
+
+    "userLikes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+
+        "$id": {
+          // Deliberately NOT granting .write on $uid: a write allowed higher up
+          // overrides everything below it, which would let anyone add or drop
+          // their own like entries without moving the counter — and then like
+          // the same palette again.
+          ".write": "auth != null && auth.uid === $uid && ((newData.exists() && newData.parent().parent().parent().child('palettes').child($id).child('likes').val() === (root.child('palettes').child($id).child('likes').exists() ? root.child('palettes').child($id).child('likes').val() : 0) + 1) || (!newData.exists() && root.child('palettes').child($id).child('likes').exists() && newData.parent().parent().parent().child('palettes').child($id).child('likes').val() === root.child('palettes').child($id).child('likes').val() - 1))",
+          ".validate": "newData.val() === true"
+        }
+      }
+    },
+
+    "lastPublish": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+}

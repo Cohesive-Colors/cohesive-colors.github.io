@@ -1,0 +1,126 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteDetail from '@/components/react/PaletteDetail';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+import { familyWeight } from '@/lib/feed';
+import { hueFamily } from '@/lib/color/naming';
+import { paletteSlug } from '@/lib/palette-url';
+import { clampMeta, clampTitle, hubHref } from '@/lib/seo';
+import type { Palette } from '@/lib/color/types';
+
+export function getStaticPaths() {
+  return [
+    // Every curated palette gets a real, indexable page on a readable URL.
+    ...SEED_PALETTES.map((palette) => {
+      const family = hueFamily(palette.hue).name;
+      return {
+        params: { slug: paletteSlug(palette) },
+        props: {
+          palette,
+          // Picked here so the component never imports the whole catalogue.
+          siblings: SEED_PALETTES.filter(
+            (p) => p.id !== palette.id && familyWeight(p, family) >= 0.25,
+          ).slice(0, 4),
+        },
+      };
+    }),
+    // Plus one route that rebuilds a palette from the URL, so published and
+    // freshly generated palettes are linkable without a server.
+    { params: { slug: 'view' }, props: { palette: undefined, siblings: [] } },
+  ];
+}
+
+interface Props {
+  palette?: Palette;
+  siblings: Palette[];
+}
+
+const { palette, siblings } = Astro.props;
+const site = Astro.site ?? Astro.url;
+
+const family = palette ? hueFamily(palette.hue).name : '';
+const mood = palette ? palette.moods[0]!.toLowerCase() : '';
+const indefinite = /^[aeiou]/.test(mood) ? 'an' : 'a';
+
+const title = clampTitle(
+  palette
+    ? `${palette.name} palette, ${palette.colors.length} ${family.toLowerCase()} colors`
+    : 'Shared palette',
+  40,
+);
+
+// Google truncates around 160 characters, so aim just under it rather than
+// writing long and letting the useful half get cut.
+const description = palette
+  ? clampMeta(
+      `${palette.name}: ${indefinite} ${mood} ${family.toLowerCase()} palette of ${palette.colors.length} hex colors ` +
+        `(${palette.colors.slice(0, 3).join(', ')}). Contrast ratios, CSS and Tailwind exports.`,
+    )
+  : clampMeta('A colour palette shared from Cohesive Colors, with contrast ratios and code exports.');
+
+const canonical = new URL(Astro.url.pathname, site).href;
+
+const structuredData = palette
+  ? {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Palettes', item: new URL('/palettes', site).href },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: `${family} palettes`,
+              item: new URL(hubHref('hue', family), site).href,
+            },
+            { '@type': 'ListItem', position: 3, name: palette.name, item: canonical },
+          ],
+        },
+        {
+          '@type': 'CreativeWork',
+          '@id': canonical,
+          name: `${palette.name} colour palette`,
+          headline: title,
+          description,
+          url: canonical,
+          dateCreated: palette.createdAt,
+          datePublished: palette.createdAt,
+          inLanguage: 'en',
+          isAccessibleForFree: true,
+          license: 'https://creativecommons.org/publicdomain/zero/1.0/',
+          creator: { '@type': 'Organization', name: 'Cohesive Colors', url: new URL('/', site).href },
+          keywords: [
+            `${family.toLowerCase()} color palette`,
+            `${palette.colors.length} color palette`,
+            ...palette.moods.map((m) => `${m.toLowerCase()} palette`),
+            `${palette.harmony} colors`,
+            ...palette.colors.map((c) => `${c} hex`),
+          ].join(', '),
+          image: {
+            '@type': 'ImageObject',
+            url: new URL(`/social/${palette.id}-pin.png`, site).href,
+            width: 1000,
+            height: 1500,
+            caption: `${palette.name}: ${palette.colors.join(', ')}`,
+          },
+          about: palette.colors.map((hex) => ({ '@type': 'Thing', name: hex })),
+        },
+      ],
+    }
+  : null;
+---
+
+<Layout
+  title={title}
+  description={description}
+  image={palette ? `/social/${palette.id}-og.png` : undefined}
+  imageAlt={palette ? `${palette.name} colour palette: ${palette.colors.join(', ')}` : undefined}
+  type={palette ? 'article' : 'website'}
+  publishedAt={palette?.createdAt}
+  noindex={!palette}
+>
+  <PaletteDetail client:load palette={palette} siblings={siblings} />
+
+  {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
+</Layout>

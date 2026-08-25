@@ -1,0 +1,21 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteFeed from '@/components/react/PaletteFeed';
+---
+
+<Layout
+  title="Saved palettes"
+  noindex
+  description="The palettes you bookmarked, stored in this browser. No account, nothing sent anywhere, and they stay put between visits."
+>
+  <section class="text-center">
+    <h1 class="text-[26px] font-semibold tracking-tight text-ink-900">Saved palettes</h1>
+    <p class="mx-auto mt-2 max-w-lg text-[13.5px] text-ink-500">
+      Bookmarks live in this browser's local storage, no account, nothing sent anywhere.
+    </p>
+  </section>
+
+  <div class="mt-7">
+    <PaletteFeed client:load mode="saved" />
+  </div>
+</Layout>

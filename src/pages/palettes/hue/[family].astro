@@ -1,0 +1,96 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import PaletteGrid from '@/components/astro/PaletteGrid.astro';
+import HubLinks from '@/components/astro/HubLinks.astro';
+import { SEED_PALETTES } from '@/lib/data/palettes';
+import { HUE_FAMILY_NAMES } from '@/lib/color/naming';
+import { familyWeight } from '@/lib/feed';
+import { slug } from '@/lib/color/export';
+import { clampMeta, clampTitle, hubHref } from '@/lib/seo';
+import type { Palette } from '@/lib/color/types';
+
+export function getStaticPaths() {
+  return HUE_FAMILY_NAMES.map((family) => ({
+    params: { family: slug(family) },
+    props: {
+      family,
+      // Ranked by how much of the palette the hue actually occupies, so the
+      // first screen is the most convincing answer to "orange palettes".
+      palettes: SEED_PALETTES.filter((p) => familyWeight(p, family) >= 0.18).sort(
+        (a, b) => familyWeight(b, family) - familyWeight(a, family),
+      ),
+    },
+  }));
+}
+
+interface Props {
+  family: string;
+  palettes: Palette[];
+}
+
+const { family, palettes } = Astro.props;
+const site = Astro.site ?? Astro.url;
+const lower = family.toLowerCase();
+
+const title = clampTitle(`${family} color palettes with hex codes`, 46);
+const description = clampMeta(
+  `${palettes.length} ${lower} color palettes with hex codes, 3 to 10 swatches each. Harmonised in OKLCH, with contrast ratios and CSS exports.`,
+);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Palettes', item: new URL('/palettes', site).href },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: `${family} palettes`,
+          item: new URL(hubHref('hue', family), site).href,
+        },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      name: title,
+      description,
+      url: new URL(Astro.url.pathname, site).href,
+      isPartOf: { '@type': 'WebSite', name: 'Cohesive Colors', url: new URL('/', site).href },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: palettes.length,
+        itemListElement: palettes.slice(0, 30).map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: p.name,
+          url: new URL(`/palette/${slug(p.name)}-palette-${p.id}`, site).href,
+        })),
+      },
+    },
+  ],
+};
+---
+
+<Layout title={title} description={description}>
+  <nav aria-label="Breadcrumb" class="text-[12px] text-ink-500">
+    <a href="/" class="hover:text-ink-900">Home</a>
+    <span class="mx-1.5 text-ink-300">/</span>
+    <a href="/palettes" class="hover:text-ink-900">Palettes</a>
+    <span class="mx-1.5 text-ink-300">/</span>
+    <span class="text-ink-900">{family}</span>
+  </nav>
+
+  <h1 class="mt-3 text-[26px] font-semibold tracking-tight text-ink-900">{family} color palettes</h1>
+  <p class="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-ink-500">
+    {palettes.length} palettes where {lower} carries at least a fifth of the visible colour, strongest
+    first. Membership is measured per swatch rather than from one averaged hue, so every palette here
+    has {lower} you can actually see in it.
+  </p>
+
+  <PaletteGrid palettes={palettes} />
+  <HubLinks title="Other collections" exclude={hubHref('hue', family)} />
+
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+</Layout>
