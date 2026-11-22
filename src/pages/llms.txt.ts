@@ -32,6 +32,7 @@ Palettes carry hex codes, WCAG 2.1 contrast ratios for every pair, and exports t
 - [All palettes](${abs('/palettes')}): paginated index of every palette, newest first
 - [Generator](${abs('/generator')}): pin colours and rebuild the rest around them
 - [How cohesion works](${abs('/about')}): the colour maths in detail
+- [Plugins and apps](${abs('/plugins')}): browser extensions (Chrome, Firefox, Edge), design-tool plugins (Figma, Penpot, Framer, Obsidian) and apps (Android, Windows), with their availability
 
 ## By hue
 

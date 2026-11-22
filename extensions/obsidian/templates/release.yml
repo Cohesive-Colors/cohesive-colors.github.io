@@ -1,0 +1,46 @@
+# Template. Copy it to .github/workflows/release.yml in the published plugin
+# repository (Cohesive-Colors/cohesive-colors-obsidian); see PUBLISHING.md.
+#
+# Push a tag equal to manifest.json's version (e.g. `1.0.1`, no "v") and this
+# builds main.js and attaches main.js, manifest.json and styles.css to a draft
+# release. Publish the draft to make the version installable.
+name: Release plugin
+
+on:
+  push:
+    tags: ['*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+      - name: Check the tag matches manifest.json
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          if [ "$version" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match manifest.json version ${version}" >&2
+            exit 1
+          fi
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --draft \
+            main.js manifest.json styles.css

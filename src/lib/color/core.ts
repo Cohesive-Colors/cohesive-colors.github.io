@@ -97,8 +97,8 @@ export function rgb255(color: Oklch | string): [number, number, number] {
 
 export const toOklab = (input: string | Oklch) => oklabConv(typeof input === 'string' ? parse(input) : input)!;
 export const fromOklab = (lab: { l: number; a: number; b: number }): Oklch => {
-  const c = oklchConv({ mode: 'oklab', ...lab })!;
-  return { mode: 'oklch', l: c.l, c: c.c, h: Number.isFinite(c.h) ? (c.h as number) : 0 };
+  const c = oklchConv({ mode: 'oklab', ...lab });
+  return { mode: 'oklch', l: c.l, c: c.c, h: c.h !== undefined && Number.isFinite(c.h) ? c.h : 0 };
 };
 
 /** Linear-light sRGB, the correct space for compositing an overlay layer. */
@@ -116,8 +116,8 @@ export function fromLinearRgb([r, g, b]: [number, number, number]): Oklch {
     const x = clamp(v, 0, 1);
     return x <= 0.0031308 ? x * 12.92 : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
   };
-  const c = oklchConv({ mode: 'rgb', r: gam(r), g: gam(g), b: gam(b) })!;
-  return { mode: 'oklch', l: c.l, c: c.c, h: Number.isFinite(c.h) ? (c.h as number) : 0 };
+  const c = oklchConv({ mode: 'rgb', r: gam(r), g: gam(g), b: gam(b) });
+  return { mode: 'oklch', l: c.l, c: c.c, h: c.h !== undefined && Number.isFinite(c.h) ? c.h : 0 };
 }
 
 export function luminance(color: Oklch | string): number {

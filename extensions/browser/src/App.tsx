@@ -20,6 +20,7 @@ import type { HarmonyKind, Palette } from '@/lib/color/types';
 import { SEED_PALETTES } from '@/lib/data/palettes';
 import { absoluteHref } from '@/lib/palette-url';
 import { clusterColors, distinctCount, scanPage, type Sample, type ScanResult } from './extract';
+import { ext } from './ext';
 import { load, save } from './storage';
 import { Chip, copyText, Label, SIZES, Swatches, toast, Toaster, type CopyFormat } from './ui';
 
@@ -426,20 +427,36 @@ type ScanState =
   | { kind: 'error'; message: string }
   | { kind: 'done'; result: ScanResult };
 
+/** Pages no extension may read: browser UI, other extensions, the stores. */
+const RESTRICTED =
+  /^(chrome|edge|brave|opera|vivaldi|about|chrome-extension|moz-extension|resource|devtools|view-source):|^https:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore|microsoftedge\.microsoft\.com\/addons|addons\.mozilla\.org|accounts-static\.cdn\.mozilla\.net|support\.mozilla\.org)/;
+
+const RESTRICTED_MESSAGE =
+  'Browsers don’t let extensions read this kind of page. Open a regular website and try again.';
+
 async function scanActiveTab(): Promise<ScanResult> {
-  if (typeof chrome === 'undefined' || !chrome.scripting) {
+  if (!ext?.scripting) {
     // Opened as a plain page (development): scan this document instead.
     return scanPage();
   }
-  const [active] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!active?.id) throw new Error('No active tab.');
-  const url = active.url ?? '';
-  if (/^(chrome|edge|about|chrome-extension|moz-extension|devtools|view-source):/.test(url) || /chromewebstore\.google\.com|chrome\.google\.com\/webstore/.test(url)) {
-    throw new Error('Browsers don’t let extensions read this kind of page. Open a regular website and try again.');
+  const [active] = await ext.tabs.query({ active: true, currentWindow: true });
+  if (active?.id === undefined) throw new Error('No active tab.');
+  if (RESTRICTED.test(active.url ?? '')) throw new Error(RESTRICTED_MESSAGE);
+  let results: chrome.scripting.InjectionResult<ScanResult>[];
+  try {
+    results = (await ext.scripting.executeScript({
+      target: { tabId: active.id },
+      func: scanPage,
+    })) as chrome.scripting.InjectionResult<ScanResult>[];
+  } catch {
+    // Firefox and Chrome refuse other privileged pages (PDF viewer, reader
+    // view, a few Google and Mozilla hosts) with an error rather than a rule
+    // we can match up front.
+    throw new Error(RESTRICTED_MESSAGE);
   }
-  const [res] = await chrome.scripting.executeScript({ target: { tabId: active.id }, func: scanPage });
-  if (!res?.result) throw new Error('Could not read this page.');
-  return res.result as ScanResult;
+  const result = results[0]?.result;
+  if (!result) throw new Error('Could not read this page.');
+  return result;
 }
 
 function PageView({

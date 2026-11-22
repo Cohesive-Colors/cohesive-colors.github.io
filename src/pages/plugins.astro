@@ -1,0 +1,156 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { PLUGIN_GROUPS, PLUGINS, STATUS_LABEL, type Plugin, type PluginIcon } from '@/lib/data/plugins';
+
+const site = Astro.site ?? Astro.url;
+
+const available = PLUGINS.filter((p) => p.status === 'available').length;
+
+// Generic glyphs only: store and product logos are their owners' trademarks.
+const ICONS: Record<PluginIcon, string> = {
+  browser: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18',
+  design: 'm12 19 7-7 3 3-7 7-3-3ZM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5ZM2 2l7.6 7.6M11 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+  phone: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM11 18h2',
+  desktop: 'M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1ZM8 21h8M12 16v5',
+  notes: 'M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5Zm0 0A2.5 2.5 0 0 1 6.5 17H20M9 7h6M9 11h4',
+};
+
+const statusClass = (p: Plugin) =>
+  p.status === 'available'
+    ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+    : p.status === 'in-review'
+      ? 'bg-amber-50 text-amber-700 ring-amber-200'
+      : p.status === 'soon'
+        ? 'bg-canvas text-ink-700 ring-line'
+        : 'bg-canvas text-ink-500 ring-line';
+
+const pluginsSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Cohesive Colors plugins and apps',
+  description:
+    'Browser extensions, design tool plugins and apps that bring cohesive palettes of 3 to 10 colours to Chrome, Firefox, Edge, Figma, Penpot, Framer, Obsidian, Android and Windows.',
+  url: new URL('/plugins', site).href,
+  inLanguage: 'en',
+  publisher: { '@type': 'Organization', name: 'Cohesive Colors', url: new URL('/', site).href },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: PLUGINS.length,
+    itemListElement: PLUGINS.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'SoftwareApplication',
+        name: `Cohesive Colors ${p.name}`,
+        applicationCategory: 'DesignApplication',
+        operatingSystem: p.os,
+        description: p.summary,
+        ...(p.status === 'available' && p.url
+          ? { url: p.url, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }
+          : {}),
+      },
+    })),
+  },
+};
+---
+
+<Layout
+  title="Plugins and apps"
+  description="Cohesive Colors for Chrome, Firefox, Edge, Figma, Penpot, Framer, Obsidian, Android and Windows: palettes of 3 to 10 colours wherever you design."
+>
+  <div class="mx-auto max-w-5xl">
+    <header class="max-w-3xl">
+      <h1 class="text-[28px] font-semibold tracking-tight text-ink-900">Plugins and apps</h1>
+      <p class="mt-3 text-[14px] leading-relaxed text-ink-700">
+        The same colour engine that builds every palette on this site, in the tools you already work in. Each one
+        generates palettes of 3 to 10 swatches, runs them through one shared key colour so they belong together,
+        and exports them as CSS, Tailwind, JSON and more.
+      </p>
+      <p class="mt-2 text-[13px] leading-relaxed text-ink-500">
+        {available > 0 ? (
+          `${available} of ${PLUGINS.length} are available now; the rest are on the way.`
+        ) : (
+          <>
+            The browser extensions, the Obsidian plugin and the Android app are built and on their way to the stores. Until they land,
+            the{' '}
+            <a href="/generator" class="font-medium text-ink-900 underline decoration-line underline-offset-2 hover:decoration-ink-900">web generator</a>
+            {' '}works in any browser.
+          </>
+        )}
+      </p>
+    </header>
+
+    {PLUGIN_GROUPS.map((group) => {
+      const items = PLUGINS.filter((p) => p.group === group.id);
+      if (items.length === 0) return null;
+      return (
+        <section class="mt-12" aria-labelledby={`group-${group.id}`}>
+          <h2 id={`group-${group.id}`} class="text-[16px] font-semibold text-ink-900">{group.title}</h2>
+          <p class="mt-1 text-[13px] text-ink-500">{group.intro}</p>
+
+          <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((p) => (
+              <li id={p.id} class="flex scroll-mt-20 flex-col rounded-[var(--radius-card)] border border-line bg-surface p-4">
+                <div class="flex items-start gap-3">
+                  <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-canvas text-ink-700 ring-1 ring-line">
+                    <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d={ICONS[p.icon]} />
+                    </svg>
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <h3 class="text-[14px] font-semibold text-ink-900">{p.name}</h3>
+                    <p class="text-[12px] text-ink-500">{p.store}</p>
+                  </div>
+                  <span class:list={['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1', statusClass(p)]}>
+                    {STATUS_LABEL[p.status]}
+                  </span>
+                </div>
+
+                <p class="mt-3 flex-1 text-[13px] leading-relaxed text-ink-700">{p.summary}</p>
+
+                {p.status === 'available' && p.url ? (
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener"
+                    class="mt-4 inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-ink-900 px-4 text-[13px] font-medium text-white transition hover:opacity-90"
+                  >
+                    Get it on {p.store}
+                    <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M7 17 17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </a>
+                ) : (
+                  <span class="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-dashed border-line px-4 text-[12.5px] text-ink-500">
+                    {p.status === 'in-review' ? 'Waiting for store review' : p.status === 'soon' ? 'Built, launching soon' : 'On the roadmap'}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })}
+
+    <section class="mt-12 grid gap-3 sm:grid-cols-2">
+      <div class="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+        <h2 class="text-[14px] font-semibold text-ink-900">One engine everywhere</h2>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-ink-500">
+          Every plugin and app runs the colour maths described in{' '}
+          <a href="/about" class="text-ink-900 underline decoration-line underline-offset-2 hover:decoration-ink-900">how cohesion works</a>,
+          so a palette looks the same in your browser, your design file and on your phone, and the 480 curated
+          palettes travel with it.
+        </p>
+      </div>
+      <div class="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+        <h2 class="text-[14px] font-semibold text-ink-900">Private by design</h2>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-ink-500">
+          No account and no tracking in any of them. Saved palettes stay on your device. Details per platform are in the{' '}
+          <a href="/privacy" class="text-ink-900 underline decoration-line underline-offset-2 hover:decoration-ink-900">privacy policy</a>.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(pluginsSchema)} />
+</Layout>

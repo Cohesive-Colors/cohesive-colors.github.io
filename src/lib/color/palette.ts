@@ -66,7 +66,10 @@ export function generatePalette(options: Partial<GenerateOptions> = {}): Generat
 
   // Pinned swatches survive the cohesion pass untouched.
   const locks = options.locks ?? [];
-  const final = ordered.map((c, i) => (locks[i] ? toOklch(locks[i]!) : c));
+  const final = ordered.map((c, i) => {
+    const lock = locks[i];
+    return lock ? toOklch(lock) : c;
+  });
 
   return {
     id: idFrom(seed, size),

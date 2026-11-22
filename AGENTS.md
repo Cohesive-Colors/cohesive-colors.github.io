@@ -76,7 +76,7 @@ Expo + React Native app that imports this site's code through the `@/…` alias
 
 ## Browser extension (`extensions/browser/`)
 
-Manifest V3 popup (Chrome/Edge now, Firefox later) that imports this site's
+Manifest V3 popup for Chrome/Edge and Firefox (`npm run build` makes both) that imports this site's
 code through the same `@/…` alias (see `extensions/browser/README.md`):
 
 - It bundles `src/lib/color/**`, `src/lib/palette-url.ts` and
@@ -85,5 +85,28 @@ code through the same `@/…` alias (see `extensions/browser/README.md`):
   `cd extensions/browser && npm run build`.
 - `extract.ts` → `scanPage()` is injected into tabs and must stay
   self-contained (no imports).
-- Store submission: `extensions/browser/STORE_LISTING.md`. The listing links to
+- Browser differences live only in `src/ext.ts` (browser.* vs chrome.*) and
+  `scripts/finalize.mjs` (Firefox add-on id, min version,
+  `data_collection_permissions`). The add-on id is permanent — never change it.
+- Store submission: `extensions/browser/STORE_LISTING.md` (Chrome, Edge) and
+  `extensions/browser/AMO_LISTING.md` (Firefox, needs the source package from
+  `npm run zip:firefox`). The listing links to
   `/privacy`, which has a "Browser extension" section — keep them in step.
+
+## Plugins page
+
+`/plugins` lists every platform from `src/lib/data/plugins.ts`. When a store
+listing goes live, set that entry's `status: 'available'` and its `url` — the
+card gets an install button and the structured data an Offer. Use generic
+icons only; store and product logos are their owners' trademarks.
+
+## Obsidian plugin (`extensions/obsidian/`)
+
+Published from its own repository (Cohesive-Colors/cohesive-colors-obsidian),
+so unlike the browser extension it does not import `../../src` at build time:
+`src/engine/` is a copy made by `npm run sync-engine`. After changing
+`src/lib/color/**` or re-running `npm run seed`, run
+`cd extensions/obsidian && npm run sync-engine` and commit `src/engine/`.
+Lint with `npm run lint` (eslint-plugin-obsidianmd, the rules community review
+uses). Plugin id `cohesive-colors` is permanent. Publishing steps:
+`extensions/obsidian/PUBLISHING.md`.

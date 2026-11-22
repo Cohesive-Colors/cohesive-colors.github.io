@@ -1,0 +1,10 @@
+{
+  "id": "cohesive-colors",
+  "name": "Cohesive Colors",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.2",
+  "description": "Generate colour palettes of 3 to 10 swatches that belong together, browse 480 curated palettes, and insert them into notes as live swatches.",
+  "author": "Cohesive Colors",
+  "authorUrl": "https://cohesive-colors.github.io",
+  "isDesktopOnly": false
+}

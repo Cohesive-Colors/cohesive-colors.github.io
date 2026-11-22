@@ -1,15 +1,23 @@
-// Packs dist/chrome into the zip the Chrome Web Store upload form expects
-// (manifest.json at the root of the archive).
-import { createWriteStream, readdirSync, readFileSync, statSync, mkdirSync } from 'node:fs';
+// Packs a built target into the zip its store expects (manifest.json at the
+// root of the archive):
+//
+//   node scripts/zip.mjs chrome   → release/cohesive-colors-chrome-<v>.zip   (Chrome Web Store, Edge Add-ons)
+//   node scripts/zip.mjs firefox  → release/cohesive-colors-firefox-<v>.zip  (addons.mozilla.org)
+import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yazl from 'yazl';
 
+const target = process.argv[2] ?? 'chrome';
 const root = fileURLToPath(new URL('..', import.meta.url));
-const dist = join(root, 'dist', 'chrome');
+const dist = join(root, 'dist', target);
+if (!existsSync(join(dist, 'manifest.json'))) {
+  console.error(`dist/${target} is missing — run npm run build:${target} first`);
+  process.exit(1);
+}
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 mkdirSync(join(root, 'release'), { recursive: true });
-const out = join(root, 'release', `cohesive-colors-chrome-${version}.zip`);
+const out = join(root, 'release', `cohesive-colors-${target}-${version}.zip`);
 
 const zip = new yazl.ZipFile();
 const walk = (dir) => {

@@ -1,15 +1,17 @@
+import { ext } from './ext';
+
 /**
- * Thin promise wrapper over chrome.storage.local, falling back to localStorage
- * when the popup is opened as a plain page (vite preview, tests). Firefox's
- * `browser.storage` is exposed as `chrome.storage` too, so this stays portable.
+ * Thin promise wrapper over the extension's local storage (chrome.storage in
+ * Chrome/Edge, browser.storage in Firefox), falling back to localStorage when
+ * the popup is opened as a plain page (vite preview, tests).
  */
-const hasChromeStorage = () =>
-  typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined' && !!chrome.storage.local;
+const area = () => ext?.storage?.local ?? null;
 
 export async function load<T>(key: string, fallback: T): Promise<T> {
   try {
-    if (hasChromeStorage()) {
-      const got = await chrome.storage.local.get(key);
+    const store = area();
+    if (store) {
+      const got = await store.get(key);
       return (got[key] as T | undefined) ?? fallback;
     }
     const raw = localStorage.getItem(key);
@@ -21,8 +23,9 @@ export async function load<T>(key: string, fallback: T): Promise<T> {
 
 export async function save<T>(key: string, value: T): Promise<void> {
   try {
-    if (hasChromeStorage()) {
-      await chrome.storage.local.set({ [key]: value });
+    const store = area();
+    if (store) {
+      await store.set({ [key]: value });
       return;
     }
     localStorage.setItem(key, JSON.stringify(value));

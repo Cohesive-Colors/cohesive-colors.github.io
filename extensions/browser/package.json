@@ -5,8 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
-    "build": "tsc --noEmit && vite build && node scripts/finalize.mjs",
-    "zip": "npm run build && node scripts/zip.mjs",
+    "build": "npm run build:chrome && npm run build:firefox",
+    "build:chrome": "tsc --noEmit && vite build && node scripts/finalize.mjs chrome",
+    "build:firefox": "tsc --noEmit && vite build --mode firefox && node scripts/finalize.mjs firefox",
+    "zip": "npm run zip:chrome && npm run zip:firefox",
+    "zip:chrome": "npm run build:chrome && node scripts/zip.mjs chrome",
+    "zip:firefox": "npm run build:firefox && node scripts/zip.mjs firefox && node scripts/source-zip.mjs",
+    "lint:firefox": "npx --yes web-ext@8 lint --source-dir dist/firefox",
+    "run:firefox": "npx --yes web-ext@8 run --source-dir dist/firefox",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,0 +1,240 @@
+/*
+ * Cohesive Colors. Everything is scoped under .cc-* classes and uses the
+ * theme's variables, so it follows light/dark mode and community themes.
+ * Swatch colours arrive per element as --cc-swatch and --cc-ink.
+ */
+
+/* ---------- swatch strip ---------- */
+
+.cc-strip {
+  display: flex;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  height: 64px;
+}
+
+.cc-strip-large {
+  height: 148px;
+  border-radius: var(--radius-l);
+}
+
+.cc-strip-block {
+  height: 88px;
+  border-radius: var(--radius-m) var(--radius-m) 0 0;
+}
+
+.cc-strip-small {
+  height: 28px;
+  width: 140px;
+  flex: none;
+  border-radius: var(--radius-s);
+}
+
+.cc-swatch {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  background-color: var(--cc-swatch);
+  transition: flex-grow 200ms ease;
+}
+
+.cc-strip:not(.cc-strip-small) .cc-swatch:hover {
+  flex-grow: 1.6;
+}
+
+.cc-swatch-button {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: var(--cursor);
+}
+
+.cc-swatch-button:hover {
+  background: transparent;
+}
+
+.cc-swatch-button:focus-visible {
+  outline: 2px solid var(--cc-ink);
+  outline-offset: -4px;
+}
+
+.cc-swatch-label {
+  position: absolute;
+  inset-inline: 0;
+  bottom: var(--size-4-2);
+  overflow: hidden;
+  padding-inline: 2px;
+  color: var(--cc-ink);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.cc-lock {
+  position: absolute;
+  top: var(--size-4-2);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: var(--cc-ink);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.cc-swatch:hover .cc-lock,
+.cc-lock:focus-visible,
+.cc-lock.is-locked {
+  opacity: 1;
+}
+
+.cc-lock:hover {
+  background: color-mix(in srgb, var(--cc-ink) 14%, transparent);
+}
+
+.cc-lock svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- text bits ---------- */
+
+.cc-name {
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+}
+
+.cc-sub {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+/* ---------- block in a note ---------- */
+
+.cc-block {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+}
+
+.cc-block-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  padding: var(--size-4-2) var(--size-4-3);
+  font-size: var(--font-ui-small);
+}
+
+.cc-block-actions {
+  display: flex;
+  margin-inline-start: auto;
+}
+
+.cc-empty {
+  padding: var(--size-4-3);
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+/* ---------- generator modal ---------- */
+
+.cc-modal {
+  width: min(560px, 92vw);
+}
+
+.cc-preview .cc-meta {
+  padding: var(--size-4-2) 0 var(--size-4-3);
+}
+
+.cc-generator .setting-item {
+  padding-block: var(--size-4-2);
+}
+
+.cc-chips,
+.cc-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--size-4-1);
+}
+
+.cc-chip {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 var(--size-4-2);
+  border-radius: var(--radius-l);
+  font-size: var(--font-ui-small);
+}
+
+.cc-chip.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.cc-dot {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 50%;
+  background-color: var(--cc-swatch);
+  box-shadow: none;
+}
+
+.cc-dot:hover {
+  background-color: var(--cc-swatch);
+  transform: scale(1.12);
+}
+
+.cc-dot.is-active {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+.cc-footer {
+  align-items: center;
+}
+
+.cc-site-link {
+  margin-inline-end: auto;
+  font-size: var(--font-ui-small);
+}
+
+/* ---------- browse modal ---------- */
+
+.cc-suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
+}
+
+.cc-suggestion-text {
+  min-width: 0;
+}
+
+.cc-suggestion-text .cc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-swatch,
+  .cc-lock {
+    transition: none;
+  }
+}

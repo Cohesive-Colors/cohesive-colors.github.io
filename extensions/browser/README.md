@@ -1,7 +1,7 @@
 # Cohesive Colors — browser extension
 
-Manifest V3 popup for Chrome (and Edge, which accepts the same package). Firefox
-gets its own build target from this folder later.
+Manifest V3 popup for Chrome, Edge (same package as Chrome) and Firefox (its
+own build target from the same code).
 
 What it does:
 
@@ -48,17 +48,36 @@ npm install
 cd extensions/browser
 npm install
 
-npm run build   # → dist/chrome (load this folder unpacked)
-npm run zip     # → release/cohesive-colors-chrome-<version>.zip for the store
-npm run dev     # rebuilds on save; press ↻ on chrome://extensions to reload
+npm run build          # → dist/chrome and dist/firefox
+npm run build:chrome   # → dist/chrome only
+npm run build:firefox  # → dist/firefox only (unminified, with gecko settings)
+npm run zip            # → both store zips + the Firefox source package in release/
+npm run zip:chrome     # → release/cohesive-colors-chrome-<version>.zip
+npm run zip:firefox    # → release/cohesive-colors-firefox-<version>.zip + -source.zip
+npm run lint:firefox   # Mozilla's addons-linter over dist/firefox
+npm run run:firefox    # opens your Firefox with the add-on loaded
+npm run dev            # Chrome build on save; press ↻ on chrome://extensions
 ```
 
-Load it locally: `chrome://extensions` → Developer mode → **Load unpacked** →
-pick `extensions/browser/dist/chrome`.
+Load it locally:
+
+- Chrome / Edge: `chrome://extensions` → Developer mode → **Load unpacked** →
+  pick `extensions/browser/dist/chrome`.
+- Firefox: `npm run run:firefox`, or `about:debugging#/runtime/this-firefox` →
+  **Load Temporary Add-on…** → `dist/firefox/manifest.json`.
+
+Browser differences live in two places only: `src/ext.ts` picks `browser.*`
+(Firefox) or `chrome.*` (Chrome/Edge), and `scripts/finalize.mjs` adds the
+Firefox manifest keys (add-on id, minimum version, `data_collection_permissions`).
+The Firefox build is unminified because AMO reviewers read the shipped code.
 
 Version lives in `package.json` only; `scripts/finalize.mjs` writes it into the
 built manifest. Bump it for every store upload — the store rejects a version
 it has already seen.
 
-Store submission steps and listing text: [STORE_LISTING.md](STORE_LISTING.md).
-Listing images: `store-assets/`.
+Store submission steps and listing text: [STORE_LISTING.md](STORE_LISTING.md)
+(Chrome Web Store, Edge Add-ons) and [AMO_LISTING.md](AMO_LISTING.md)
+(addons.mozilla.org). Listing images: `store-assets/`.
+
+Keep `package-lock.json` committed: the Firefox source package ships it so the
+reviewer's build matches the upload exactly.

@@ -1,0 +1,6 @@
+node_modules/
+# build output: attached to GitHub releases, never committed
+main.js
+*.map
+data.json
+.DS_Store
