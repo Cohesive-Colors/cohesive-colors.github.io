@@ -36,3 +36,38 @@ serviceAccountKey.json
 
 # jetbrains setting folder
 .idea/
+
+# delivery archive
+cohesive-colors-mobile.tar.gz
+
+# local env variants (examples stay tracked)
+.env.*
+!.env.example
+
+# signing keys and service accounts, anywhere in the repo
+*.keystore
+*.jks
+*.p12
+*.pem
+serviceAccount*.json
+
+# archives and store builds (Play AAB/APK, extension zips)
+*.zip
+*.tar.gz
+*.aab
+*.apk
+release/
+
+# test and browser-automation artefacts
+test-results/
+playwright-report/
+
+# marketing screenshots — not referenced by any page, so they must not be
+# copied from public/ into the deployed site
+public/Screenshot*.png
+
+# editor / OS noise
+.claude/settings.local.json
+Thumbs.db
+desktop.ini
+*.tsbuildinfo

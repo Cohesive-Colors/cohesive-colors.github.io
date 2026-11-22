@@ -49,3 +49,41 @@ harmony changes will silently leave it stale.
 ## Documentation
 
 Full Astro documentation: https://docs.astro.build
+
+## Android app (`mobile/`)
+
+Expo + React Native app that imports this site's code through the `@/…` alias
+(see `mobile/README.md`). Consequences for site work:
+
+- `src/lib/**` and `src/store/useToastStore.ts`, `src/store/useRemoteStore.ts`
+  also run on Hermes — no DOM, `window` or `localStorage` there.
+- `src/lib/firebase/config.ts`, `client.ts` and `src/store/useAppStore.ts` have
+  mobile twins in `mobile/src/{shims,store}`; keep their exports in step.
+- After changing shared code, also run `cd mobile && npm run typecheck`.
+- Store release steps: `mobile/PLAY_STORE.md`. The Play listing links to `/privacy`.
+
+## Android app (`mobile/`)
+
+Expo + React Native app that imports this site's code through the `@/…` alias
+(see `mobile/README.md`). Consequences for site work:
+
+- `src/lib/**` and `src/store/useToastStore.ts`, `src/store/useRemoteStore.ts`
+  also run on Hermes — no DOM, `window` or `localStorage` there.
+- `src/lib/firebase/config.ts`, `client.ts` and `src/store/useAppStore.ts` have
+  mobile twins in `mobile/src/{shims,store}`; keep their exports in step.
+- After changing shared code, also run `cd mobile && npm run typecheck`.
+- Store release steps: `mobile/PLAY_STORE.md`. The Play listing links to `/privacy`.
+
+## Browser extension (`extensions/browser/`)
+
+Manifest V3 popup (Chrome/Edge now, Firefox later) that imports this site's
+code through the same `@/…` alias (see `extensions/browser/README.md`):
+
+- It bundles `src/lib/color/**`, `src/lib/palette-url.ts` and
+  `src/lib/data/palettes.ts` — keep those free of DOM/Astro/Firebase imports.
+- After changing the engine or re-running `npm run seed`, rebuild it:
+  `cd extensions/browser && npm run build`.
+- `extract.ts` → `scanPage()` is injected into tabs and must stay
+  self-contained (no imports).
+- Store submission: `extensions/browser/STORE_LISTING.md`. The listing links to
+  `/privacy`, which has a "Browser extension" section — keep them in step.

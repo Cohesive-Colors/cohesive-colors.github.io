@@ -1,4 +1,4 @@
-import { getFirebase } from './client';
+import { getFirebase } from '@/lib/firebase/client';
 import type { Palette } from '@/lib/color/types';
 
 /** How a palette is stored in Realtime Database. */
@@ -51,7 +51,12 @@ export async function subscribeFeed(
   onError?: (error: Error) => void,
 ): Promise<Unsubscribe> {
   const fb = await getFirebase();
-  if (!fb) return () => {};
+  if (!fb) {
+    // Configured but unreachable (offline, blocked, sign-in failed): report it,
+    // so callers stop showing "connecting" and fall back to the bundled feed.
+    onError?.(new Error('Firebase unavailable'));
+    return () => {};
+  }
 
   const { ref, query, orderByChild, limitToLast, onValue, off } = await import('firebase/database');
   const q = query(ref(fb.db, 'palettes'), orderByChild('createdAt'), limitToLast(PALETTE_LIMIT));

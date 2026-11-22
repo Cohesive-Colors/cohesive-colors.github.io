@@ -1,0 +1,82 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+// Linked from the Android app's About screen, its Google Play listing and the
+// Chrome Web Store listing, which all require a public privacy policy URL. Keep
+// it in step with mobile/PLAY_STORE.md (Data safety answers) and
+// extensions/browser/STORE_LISTING.md (Privacy practices) whenever data
+// handling changes.
+const updated = 'November 22, 2026';
+---
+
+<Layout
+  title="Privacy policy"
+  description="What Cohesive Colors stores, where it lives and how to remove it, for the website, the Android app and the browser extension."
+>
+  <article class="mx-auto max-w-3xl text-[14px] leading-relaxed text-ink-700">
+    <h1 class="text-[28px] font-semibold tracking-tight text-ink-900">Privacy policy</h1>
+    <p class="mt-2 text-[12.5px] text-ink-500">
+      Last updated {updated}. Applies to cohesive-colors.github.io, the Cohesive Colors Android app and the
+      Cohesive Colors browser extension.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">The short version</h2>
+    <p class="mt-2">
+      There are no accounts, no ads, no analytics and no tracking. Your saved palettes never leave your device.
+      The only things sent to a server are likes and the palettes you choose to publish, tied to a random
+      anonymous ID rather than to you.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">What stays on your device</h2>
+    <p class="mt-2">
+      Saved (bookmarked) palettes, the cohesion overlay settings and, when the shared feed is unavailable, your
+      likes. On the website they live in your browser's local storage; in the app they live in the app's private
+      storage. Clearing site data, using "Clear saved palettes" in the app, or uninstalling the app removes them.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">What is sent to a server</h2>
+    <p class="mt-2">
+      Likes and published palettes are stored in Google Firebase Realtime Database so everyone sees the same
+      counts and feed. To stop one person liking a palette many times, Firebase Authentication creates an
+      anonymous ID for each browser or app install. It is not linked to your name, email, phone number or any
+      other account. Stored with that ID:
+    </p>
+    <ul class="mt-2 list-disc space-y-1 pl-5">
+      <li>the IDs of palettes you liked;</li>
+      <li>palettes you publish: their colours, generated name, harmony, settings and publish time.</li>
+    </ul>
+    <p class="mt-2">
+      Published palettes are public by design and appear in the shared feed. Like any web service, Firebase
+      processes technical data such as IP addresses to deliver requests; see
+      <a class="underline" href="https://firebase.google.com/support/privacy">Firebase's privacy information</a>.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">Browser extension</h2>
+    <p class="mt-2">
+      The extension sends nothing to any server. Its saved palettes and settings live in your browser's extension
+      storage and are removed when you uninstall it. When you open the "From page" tab, it reads the colours used
+      by the page in your current tab (computed styles only: no text, form data or browsing history) to build a
+      palette, only for that tab and only at that moment. The result stays in the extension. It does not use the
+      shared feed, likes or Firebase.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">What we do not do</h2>
+    <p class="mt-2">
+      We do not sell or share data, show ads, use analytics or advertising SDKs, or request access to your
+      contacts, location, camera, microphone or files.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">Removing your data</h2>
+    <p class="mt-2">
+      Un-liking a palette removes that like. Local data goes away as described above. Published palettes cannot be
+      edited from the app; to have one removed, contact us through the developer email on the Google Play listing
+      and include the palette's link.
+    </p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">Children</h2>
+    <p class="mt-2">The service is a general-audience design tool and is not directed at children under 13.</p>
+
+    <h2 class="mt-8 text-[16px] font-semibold text-ink-900">Changes</h2>
+    <p class="mt-2">If this policy changes, the date at the top changes with it.</p>
+  </article>
+</Layout>

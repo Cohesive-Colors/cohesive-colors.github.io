@@ -1,0 +1,256 @@
+---
+interface Props {
+	eyebrow?: string;
+}
+
+const { eyebrow = 'Trusted by builders who care about face privacy' } = Astro.props;
+---
+
+<section
+	class='border-t border-line bg-surface-container-low py-8'
+	aria-label='Partner logos'>
+	<div class='section-shell'>
+		<p class='mb-5 text-center text-xs font-bold uppercase tracking-widest text-on-surface-variant'>
+			{eyebrow}
+		</p>
+		<div
+			class='logo-marquee'
+			data-logo-marquee>
+			<div
+				class='logo-marquee__track'
+				data-logo-marquee-track>
+				<a
+					href='https://go-publicly.com/launch/cohesive-colors?utm_source=badge&utm_medium=referral'
+					target='_blank'>
+					<img
+						src='https://go-publicly.com/badges/featured-on-go-publicly-light.png'
+						alt='Featured on Go Publicly'
+						width='250'
+						height='54'
+					/>
+				</a>
+				<a
+					href='https://ideakiln.com/ideas/cohesive-color-palettes'
+					target='_blank'
+					rel='noopener'>
+					<img
+						src='https://ideakiln.com/light.svg'
+						alt='Featured on Idea Kiln'
+						width='200'
+						height='54'
+					/>
+				</a>
+				<a
+					href='https://openlaunch.co'
+					target='_blank'
+					rel='noopener'
+					title='Featured on OpenLaunch — weekly product launches'>
+					<img
+						src='https://openlaunch.co/badge.webp'
+						alt='Featured on OpenLaunch'
+						width='541'
+						height='151'
+						style='height:45px;width:auto;'
+					/>
+				</a>
+				<a
+					href='https://kittylaunch.com/p/cohesive-color-palettes?utm_source=badge'
+					target='_blank'
+					rel='noopener'>
+					<img
+						src='https://kittylaunch.com/api/public/badges/launch_badge.svg?style=pill&theme=light'
+						width='296'
+						alt='Cohesive Color Palettes, Verified by KittyLaunch'
+						data-kittylaunch-badge='1'
+					/>
+				</a>
+				<a
+					href='https://www.superlaun.ch/products/4641'
+					target='_blank'
+					rel='noopener'>
+					<img
+						src='https://www.superlaun.ch/badge.png'
+						alt='Featured on Super Launch'
+						width='300'
+						height='300'
+					/>
+				</a>
+				<a
+					href='https://www.tinyshelf.co/?ref=cohesive-colors.github.io'
+					title='Featured on TinyShelf'>
+					<img
+						src='https://www.tinyshelf.co/badge/tinyshelf-badge-light-5ca4026a.svg'
+						alt='Featured on TinyShelf'
+						width='216'
+						height='64'
+					/>
+				</a>
+				<!-- JustHunt Badge -->
+				<a
+					href='https://justhunt.co/startups/cohesive-color-palettes'
+					target='_blank'
+					rel='noopener'
+					style="display:inline-flex;align-items:center;gap:16px;padding:16px 22px;background:#ffffff;color:#111827;border:2px solid #e5e7eb;border-radius:18px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.06);"
+					onmouseover="this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
+					onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform='translateY(0)'">
+					<div style='width:48px;height:48px;border-radius:12px;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e5e7eb;'>
+						<img
+							src='https://cohesive-colors.github.io/apple-touch-icon.png?v=2'
+							alt='Cohesive Color Palettes'
+							style='width:100%;height:100%;object-fit:cover;border-radius:10px;'
+						/>
+					</div>
+					<div style='display:flex;flex-direction:column;min-width:0;gap:1px;'>
+						<span style='font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:0.8px;display:flex;align-items:center;gap:4px;'>
+							<svg
+								width='12'
+								height='12'
+								viewBox='0 0 24 24'
+								fill='none'
+								stroke='#f59e0b'
+								stroke-width='2.5'
+								stroke-linecap='round'
+								stroke-linejoin='round'>
+								<path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z' />
+							</svg>
+							FEATURED ON
+						</span>
+						<span style='font-size:11px;color:#6b7280;display:flex;align-items:center;gap:5px;font-weight:500;margin-top:2px;'>
+							<img
+								src='https://justhunt.co/logo.png'
+								alt='JH'
+								style='width:18px;height:18px;border-radius:4px;'
+							/>
+							JustHunt
+						</span>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const setupLogoMarquee = () => {
+		document.querySelectorAll('[data-logo-marquee]').forEach((marquee) => {
+			const track = marquee.querySelector('[data-logo-marquee-track]');
+			if (!track || track.dataset.marqueeReady === 'true') return;
+
+			track.querySelectorAll('[data-marquee-clone]').forEach((clone) => clone.remove());
+
+			const originalItems = [...track.children];
+			if (originalItems.length === 0) return;
+
+			const firstItem = originalItems[0];
+			const lastItem = originalItems[originalItems.length - 1];
+			const start = firstItem.getBoundingClientRect().left;
+			const end = lastItem.getBoundingClientRect().right;
+			const setWidth = Math.max(1, end - start);
+
+			track.style.setProperty('--logo-marquee-distance', `${setWidth}px`);
+
+			const requiredWidth = marquee.getBoundingClientRect().width * 2 + setWidth;
+			while (track.scrollWidth < requiredWidth) {
+				originalItems.forEach((item) => {
+					const clone = item.cloneNode(true);
+					clone.dataset.marqueeClone = 'true';
+					clone.setAttribute('aria-hidden', 'true');
+					clone.setAttribute('tabindex', '-1');
+					track.append(clone);
+				});
+			}
+
+			track.dataset.marqueeReady = 'true';
+		});
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupLogoMarquee, { once: true });
+	} else {
+		setupLogoMarquee();
+	}
+
+	window.addEventListener('resize', () => {
+		document.querySelectorAll('[data-logo-marquee-track]').forEach((track) => {
+			track.dataset.marqueeReady = 'false';
+			track.querySelectorAll('[data-marquee-clone]').forEach((clone) => clone.remove());
+		});
+		setupLogoMarquee();
+	});
+</script>
+
+<style>
+	.logo-marquee {
+		position: relative;
+		overflow: hidden;
+		mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+	}
+
+	.logo-marquee__track {
+		display: flex;
+		width: max-content;
+		gap: 1rem;
+		padding-block: 0.25rem;
+		animation: logo-marquee-scroll-left 24s linear infinite;
+		will-change: transform;
+	}
+
+	.logo-marquee:hover .logo-marquee__track {
+		animation-play-state: paused;
+	}
+
+	.logo-marquee__track > * {
+		display: grid;
+		min-width: 11rem;
+		height: 4.5rem;
+		flex: 0 0 auto;
+		place-items: center;
+		border: 1px solid var(--color-outline-variant);
+		border-radius: 1rem;
+		background: rgb(255 255 255 / 0.82);
+		padding: 1rem 1.25rem;
+		transition:
+			border-color 180ms ease,
+			transform 180ms ease,
+			background-color 180ms ease;
+	}
+
+	.logo-marquee__track > *:hover {
+		border-color: var(--color-primary);
+		background: #fff;
+		transform: translateY(-2px);
+	}
+
+	.logo-marquee__track img {
+		display: block;
+		max-height: 2.7rem;
+		max-width: 9.5rem;
+		object-fit: contain;
+	}
+
+	@keyframes logo-marquee-scroll-left {
+		from {
+			transform: translate3d(0, 0, 0);
+		}
+
+		to {
+			transform: translate3d(calc(-1 * var(--logo-marquee-distance, 22rem)), 0, 0);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.logo-marquee__track {
+			animation: none;
+			flex-wrap: wrap;
+			justify-content: center;
+			width: 100%;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.logo-marquee__track > * {
+			min-width: 9rem;
+			height: 4rem;
+		}
+	}
+</style>

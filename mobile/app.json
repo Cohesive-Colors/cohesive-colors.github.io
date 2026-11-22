@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Cohesive Colors",
+    "slug": "cohesive-colors",
+    "version": "1.0.0",
+    "scheme": "cohesivecolors",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f9fafb",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cohesivecolors.app"
+    },
+    "android": {
+      "package": "com.cohesivecolors.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#131215",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#131215"
+        }
+      ],
+      "./plugins/withReleaseSigning"
+    ],
+    "experiments": {
+      "tsconfigPaths": false
+    }
+  }
+}
