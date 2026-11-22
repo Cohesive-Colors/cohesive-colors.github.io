@@ -1,19 +1,10 @@
 ---
-interface Props {
-	eyebrow?: string;
-	class?: string;
-}
-
-const { eyebrow = 'Trusted by builders who care about face privacy', class: className } = Astro.props;
 ---
 
 <section
-	class:list={['border-t border-line bg-surface-container-low py-8', className]}
+	class:list={['border-t border-line bg-surface-container-low py-8']}
 	aria-label='Partner logos'>
 	<div class='section-shell'>
-		<p class='mb-5 text-center text-xs font-bold uppercase tracking-widest text-on-surface-variant'>
-			{eyebrow}
-		</p>
 		<div
 			class='logo-marquee'
 			data-logo-marquee>
