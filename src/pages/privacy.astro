@@ -7,6 +7,22 @@ import Layout from '@/layouts/Layout.astro';
 // extensions/browser/STORE_LISTING.md (Privacy practices) whenever data
 // handling changes.
 const updated = 'November 22, 2026';
+// Same date, ISO form — parsing the string above shifts it a day in some time zones.
+const updatedIso = '2026-11-22';
+
+// The SEO audit in CI requires structured data on every indexable page.
+const site = Astro.site ?? Astro.url;
+const privacySchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Privacy policy',
+  description:
+    'What Cohesive Colors stores, where it lives and how to remove it, for the website, the Android app and the browser extension.',
+  url: new URL('/privacy', site).href,
+  inLanguage: 'en',
+  dateModified: updatedIso,
+  publisher: { '@type': 'Organization', name: 'Cohesive Colors', url: new URL('/', site).href },
+};
 ---
 
 <Layout
@@ -79,4 +95,5 @@ const updated = 'November 22, 2026';
     <h2 class="mt-8 text-[16px] font-semibold text-ink-900">Changes</h2>
     <p class="mt-2">If this policy changes, the date at the top changes with it.</p>
   </article>
+  <script type="application/ld+json" set:html={JSON.stringify(privacySchema)} />
 </Layout>

@@ -1,13 +1,14 @@
 ---
 interface Props {
 	eyebrow?: string;
+	class?: string;
 }
 
-const { eyebrow = 'Trusted by builders who care about face privacy' } = Astro.props;
+const { eyebrow = 'Trusted by builders who care about face privacy', class: className } = Astro.props;
 ---
 
 <section
-	class='border-t border-line bg-surface-container-low py-8'
+	class:list={['border-t border-line bg-surface-container-low py-8', className]}
 	aria-label='Partner logos'>
 	<div class='section-shell'>
 		<p class='mb-5 text-center text-xs font-bold uppercase tracking-widest text-on-surface-variant'>
@@ -132,8 +133,8 @@ const { eyebrow = 'Trusted by builders who care about face privacy' } = Astro.pr
 
 <script>
 	const setupLogoMarquee = () => {
-		document.querySelectorAll('[data-logo-marquee]').forEach((marquee) => {
-			const track = marquee.querySelector('[data-logo-marquee-track]');
+		document.querySelectorAll<HTMLElement>('[data-logo-marquee]').forEach((marquee) => {
+			const track = marquee.querySelector<HTMLElement>('[data-logo-marquee-track]');
 			if (!track || track.dataset.marqueeReady === 'true') return;
 
 			track.querySelectorAll('[data-marquee-clone]').forEach((clone) => clone.remove());
@@ -152,7 +153,7 @@ const { eyebrow = 'Trusted by builders who care about face privacy' } = Astro.pr
 			const requiredWidth = marquee.getBoundingClientRect().width * 2 + setWidth;
 			while (track.scrollWidth < requiredWidth) {
 				originalItems.forEach((item) => {
-					const clone = item.cloneNode(true);
+					const clone = item.cloneNode(true) as HTMLElement;
 					clone.dataset.marqueeClone = 'true';
 					clone.setAttribute('aria-hidden', 'true');
 					clone.setAttribute('tabindex', '-1');
@@ -171,7 +172,7 @@ const { eyebrow = 'Trusted by builders who care about face privacy' } = Astro.pr
 	}
 
 	window.addEventListener('resize', () => {
-		document.querySelectorAll('[data-logo-marquee-track]').forEach((track) => {
+		document.querySelectorAll<HTMLElement>('[data-logo-marquee-track]').forEach((track) => {
 			track.dataset.marqueeReady = 'false';
 			track.querySelectorAll('[data-marquee-clone]').forEach((clone) => clone.remove());
 		});
